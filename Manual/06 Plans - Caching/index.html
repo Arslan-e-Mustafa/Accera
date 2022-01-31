@@ -1,0 +1,2074 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Open source compiler for generating fast, compute-intensive loops used in AI algorithms, from Microsoft AI & Research.">
+      
+      
+        <meta name="author" content="Microsoft">
+      
+      
+      <link rel="icon" href="../../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.9">
+    
+    
+      
+        <title>Plans - Caching - Accera</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2b4465f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700%7CSource+Code+Pro&display=fallback">
+        <style>:root{--md-text-font:"Open Sans";--md-code-font:"Source Code Pro"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#section-6-plans-caching" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Accera" class="md-header__button md-logo" aria-label="Accera" data-md-component="logo">
+      
+  <img src="../../assets/A_lighttext.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Accera
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plans - Caching
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="light-blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/microsoft/Accera/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    microsoft/Accera
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        Home
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../Install/" class="md-tabs__link">
+        Setup
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../" class="md-tabs__link md-tabs__link--active">
+        Manual
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../Tutorials/" class="md-tabs__link">
+        Tutorials
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../Reference/accera/" class="md-tabs__link">
+        Reference
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Accera" class="md-nav__button md-logo" aria-label="Accera" data-md-component="logo">
+      
+  <img src="../../assets/A_lighttext.png" alt="logo">
+
+    </a>
+    Accera
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/microsoft/Accera/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    microsoft/Accera
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_1">
+          Home
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Home" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          Home
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Setup
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Setup" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Setup
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2">
+          Install from PyPI
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Install from PyPI" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Install from PyPI
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/Installing_Accera_on_MacOS/" class="md-nav__link">
+        macOS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/Installing_Accera_on_Ubuntu/" class="md-nav__link">
+        Ubuntu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/Installing_Accera_on_Windows/" class="md-nav__link">
+        Windows
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_3" type="checkbox" id="__nav_2_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_3">
+          Build and Install
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Build and Install" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Build and Install
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/Building_on_MacOS/" class="md-nav__link">
+        macOS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/Building_on_Ubuntu/" class="md-nav__link">
+        Ubuntu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Install/Building_on_Windows/" class="md-nav__link">
+        Windows
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Manual
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Manual" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Manual
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00%20Introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01%20Arrays/" class="md-nav__link">
+        Arrays
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02%20Simple%20Affine%20Loop%20Nests/" class="md-nav__link">
+        Simple Affine Loop Nests
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03%20Schedules/" class="md-nav__link">
+        Schedules
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04%20Fusing/" class="md-nav__link">
+        Fusing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05%20Targets/" class="md-nav__link">
+        Targets
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Plans - Caching
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Plans - Caching
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#key-slices" class="md-nav__link">
+    Key slices
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-elements-and-active-blocks" class="md-nav__link">
+    Active elements and active blocks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caches" class="md-nav__link">
+    Caches
+  </a>
+  
+    <nav class="md-nav" aria-label="Caches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-by-level" class="md-nav__link">
+    Caching by level
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-by-dimension" class="md-nav__link">
+    Caching by dimension
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching-by-element-budget" class="md-nav__link">
+    Caching by element budget
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-yet-implemented-thrifty-caching" class="md-nav__link">
+    Not yet implemented: Thrifty caching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hierarchical-caching" class="md-nav__link">
+    Hierarchical caching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multicaching" class="md-nav__link">
+    Multicaching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-yet-implemented-mapping-caches-to-specific-types-of-memory" class="md-nav__link">
+    Not yet implemented: Mapping caches to specific types of memory
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07%20Plans%20-%20Vectorization%20and%20Parallelization/" class="md-nav__link">
+        Plans - Vectorization and Parallelization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08%20Deferred%20Layout%20of%20Constant%20Arrays/" class="md-nav__link">
+        Deferred Layout of Constant Arrays
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09%20Parameters/" class="md-nav__link">
+        Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10%20Packages/" class="md-nav__link">
+        Packages
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/Hello_MatMul/" class="md-nav__link">
+        Hello Matrix Multiplication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/Optimized_MatMul/" class="md-nav__link">
+        Optimized Matrix Multiplication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/Hello_MatMul_GPU/" class="md-nav__link">
+        Hello Matrix Multiplication on GPU
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/Pi3_Cross_Compilation/" class="md-nav__link">
+        Cross Compilation for Raspberry Pi 3
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/accera/" class="md-nav__link">
+        Accera
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2">
+          Classes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Classes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Classes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_1" type="checkbox" id="__nav_5_2_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2_1">
+          Array
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Array" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          Array
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Array/Array/" class="md-nav__link">
+        Array
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Array/Layout/" class="md-nav__link">
+        Array.Layout
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Array/Role/" class="md-nav__link">
+        Array.Role
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Array/deferred_layout/" class="md-nav__link">
+        Array.deferred_layout
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_2" type="checkbox" id="__nav_5_2_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2_2">
+          Nest
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Nest" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Nest
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Nest/Nest/" class="md-nav__link">
+        Nest
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Nest/create_plan/" class="md-nav__link">
+        Nest.create_plan
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Nest/create_schedule/" class="md-nav__link">
+        Nest.create_schedule
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Nest/get_indices/" class="md-nav__link">
+        Nest.get_indices
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Nest/iteration_logic/" class="md-nav__link">
+        Nest.iteration_logic
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_3" type="checkbox" id="__nav_5_2_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2_3">
+          Package
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Package" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_3">
+          <span class="md-nav__icon md-icon"></span>
+          Package
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/Package/" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/Format/" class="md-nav__link">
+        Package.Format
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/Mode/" class="md-nav__link">
+        Package.Mode
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/Platform/" class="md-nav__link">
+        Package.Platform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/add/" class="md-nav__link">
+        Package.add
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/add_description/" class="md-nav__link">
+        Package.add_description
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Package/build/" class="md-nav__link">
+        Package.build
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_4" type="checkbox" id="__nav_5_2_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2_4">
+          Plan
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Plan" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_4">
+          <span class="md-nav__icon md-icon"></span>
+          Plan
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Plan/bind/" class="md-nav__link">
+        Plan.bind
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Plan/cache/" class="md-nav__link">
+        Plan.cache
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Plan/kernelize/" class="md-nav__link">
+        Plan.kernelize
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Plan/parallelize/" class="md-nav__link">
+        Plan.parallelize
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Plan/unroll/" class="md-nav__link">
+        Plan.unroll
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Plan/vectorize/" class="md-nav__link">
+        Plan.vectorize
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_5" type="checkbox" id="__nav_5_2_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2_5">
+          Schedule
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Schedule" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_5">
+          <span class="md-nav__icon md-icon"></span>
+          Schedule
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Schedule/create_plan/" class="md-nav__link">
+        Schedule.create_plan
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Schedule/pad/" class="md-nav__link">
+        Schedule.pad
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Schedule/reorder/" class="md-nav__link">
+        Schedule.reorder
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Schedule/skew/" class="md-nav__link">
+        Schedule.skew
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Schedule/split/" class="md-nav__link">
+        Schedule.split
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Schedule/tile/" class="md-nav__link">
+        Schedule.tile
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2_6" type="checkbox" id="__nav_5_2_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2_6">
+          Target
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Target" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_2_6">
+          <span class="md-nav__icon md-icon"></span>
+          Target
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Target/Target/" class="md-nav__link">
+        Target
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Target/Architecture/" class="md-nav__link">
+        Target.Architecture
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Target/Category/" class="md-nav__link">
+        Target.Category
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/classes/Target/Model/" class="md-nav__link">
+        Target.Model
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_3" type="checkbox" id="__nav_5_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_3">
+          Enumerations
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Enumerations" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_3">
+          <span class="md-nav__icon md-icon"></span>
+          Enumerations
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/enumerations/ScalarType/" class="md-nav__link">
+        ScalarType
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_4" type="checkbox" id="__nav_5_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_4">
+          Functions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Functions" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_4">
+          <span class="md-nav__icon md-icon"></span>
+          Functions
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/functions/create_parameters/" class="md-nav__link">
+        create_parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/functions/fuse/" class="md-nav__link">
+        fuse
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/functions/get_parameters_from_grid/" class="md-nav__link">
+        get_parameters_from_grid
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_5" type="checkbox" id="__nav_5_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_5">
+          Miscellaneous
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Miscellaneous" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_5">
+          <span class="md-nav__icon md-icon"></span>
+          Miscellaneous
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Reference/safety_analysis/" class="md-nav__link">
+        Safety Analysis
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/microsoft/Accera/edit/main/docs/Manual/06 Plans - Caching.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<h1 id="section-6-plans-caching">Section 6: Plans - Caching</h1>
+<p>In the previous sections, we defined the logic and then scheduled its iterations. The next step is to complete the implementation with target-specific options.</p>
+<p>First, we create a plan from the schedule:
+<div class="highlight"><pre><span></span><code><span class="n">plan</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">create_plan</span><span class="p">()</span>
+</code></pre></div>
+We can create multiple plans from a schedule and modify each one without changing the schedule. To manually specify the target platform, the call to <code>create_plan</code> can take a <code>target</code> argument. The default value of this argument is <code>acc.Target.HOST</code>, which represents the current host computer.</p>
+<p>In this section, we discuss how to add data caching strategies to a plan.</p>
+<h2 id="key-slices">Key slices</h2>
+<p>Recall that a <a href="../03%20Schedules/">slice</a> is a set of iteration space elements that match a coordinate template with wildcards, such as <code>(1, *, 3)</code>. A <em>key-slice</em> is a slice whose wildcards are right-aligned, such as <code>(1, 2, *)</code> and <code>(3, *, *)</code>. The <em>level</em> of a key-slice is the number of wildcards in its definition, so for example, <code>(1, 2, *)</code> is a level 1 key-slice and <code>(3, *, *)</code> is a level 2 key slice.</p>
+<p>Note that reordering the dimensions of an iteration space changes which slices are key-slices. However, it is always true that the entire <em>d</em>-dimensional iteration space is a level <em>d</em> key-slice and each individual element is a level zero key-slice. Each iteration belongs to one key-slice from each level, from zero to <em>d</em>, for a total of <em>d+1</em> different key-slices. When the schedule is executed, the key-slices that contain the current iteration are called the <em>current key-slices</em>.</p>
+<p>The significance of key-slices is that they partition the iteration space into sets of consecutive iterations. Therefore, they can be used to describe phases of the computation, at different levels of granularity. The term <em>key-slice</em> suggests that we will use them to <em>key</em> different actions. Specifically, each time the current level-<em>l</em> key slice changes, we use this event to trigger a cache update.</p>
+<p>As mentioned above, we can identify a specific current key-slice by noting its level. Another way to specify a current key-slice is to take advantage of the fact that the iteration space dimensions are named and ordered, and to specify the first dimension that is replaced by a wildcard in the key-slice definition. For example, if the names of the iteration space dimensions are <code>(i, j, k)</code>, then the current key-slice that corresponds to the dimension <code>j</code> is one of <code>(0, *, *)</code>, <code>(1, *, *)</code>, etc. Both ways of specifying a current key-slice are useful and Accera uses them interchangeably.</p>
+<h2 id="active-elements-and-active-blocks">Active elements and active blocks</h2>
+<p>A loop nest operates on data stored in arrays. Each key-slice touches a subset of the array elements, which we call the <em>active elements</em> that correspond to that key-slice. Since the current iteration belongs to key-slices at different levels, we also define corresponding sets of active elements at different levels.</p>
+<p>More precisely, the elements of an array <code>A</code> that are touched (read from or written to) by the iterations of the current level <em>l</em> key-slice are called the level <em>l</em> active elements of <code>A</code>. This set of elements does not necessarily take the shape of a block. Therefore, we define the <em>level l active block</em> of <code>A</code> as the smallest block of elements that contains all of the level <em>l</em> active elements in <code>A</code>. Accera uses active blocks to define caching strategies.</p>
+<p>Just like we can specify a current key-slice using a dimension, we can also refer to the active block that corresponds to a dimension. For example, if the names of the iteration space dimensions are <code>(i, j, k)</code> and the current iteration is one of the iterations for which <code>i=3</code> then the active block in <code>A</code> that corresponds to dimension <code>j</code> is the block that includes all the elements touched by the key-slice <code>(3, *, *)</code>.</p>
+<h2 id="caches">Caches</h2>
+<p>An Accera cache is a local copy of an active block. A cache is contiguous in memory and its memory layout may be different from the layout of the original array. The loop nest iterations operate on the elements of the cache instead of the original array elements.</p>
+<p>The contents of the active block are copied into the cache at the beginning of the corresponding key-slice. If the array is mutable (namely, if it is an input/output array or a temporary array), the contents of the cache are also copied back into the original array at the end of the key-slice.</p>
+<h3 id="caching-by-level">Caching by level</h3>
+<p>To define a cache for a given array, all we need to do is specify the desired level. For example:
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+The return value <code>AA</code> is a handle that can be used to refer to the cache in subsequent operations. We can choose the cache layout, just as we did when we defined the original array.
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">acc</span><span class="o">.</span><span class="n">Array</span><span class="o">.</span><span class="n">Layout</span><span class="o">.</span><span class="n">FIRST_MAJOR</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="caching-by-dimension">Caching by dimension</h3>
+<p>As mentioned above, we can also specify an active block using a dimension. We use this to define a cache as follows:
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="caching-by-element-budget">Caching by element budget</h3>
+<p>Note that the current active blocks of an array are nested, and their size is monotonic (nondecreasing) in their level. Therefore, we can also choose the largest active block that does not exceed a certain budget of elements.
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">max_elements</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="not-yet-implemented-thrifty-caching"><strong>Not yet implemented:</strong> Thrifty caching</h2>
+<p>By default, Accera caching strategies are <em>thrifty</em>, which means that data is physically copied into an allocated cache only if the cached data somehow differs from the original active block. In other words, if the original active block happens to already be contiguous in memory and in the correct memory layout, then Accera skips the caching step and instead just uses the original array. Note that on a GPU, if the cache is supposed to be allocated in a different type of memory than the original array (e.g., the array is in global memory but the cache is supposed to be in shared memory) then a physical copy is created.</p>
+<p>For example, say that <code>A</code> is a two-dimensional array and its active block at the chosen level is always one of its rows. If <code>A</code> is row-major, its rows are already stored contiguously and the data in the active block is identical to the data that would be copied into the cache: both are contiguous and both share the same layout. Since the two are identical, there is no benefit to using the cache over using the original array. The thrifty caching strategy skips the caching step and instead uses the data in the original array. On the other hand, if <code>A</code> is column-major, its rows are not stored contiguously. Copying the active row into a contiguous temporary location could be computationally advantageous. In this case, the thrifty caching strategy would create the cache and populate it with data.</p>
+<p>Thrifty caching can be turned off using the optional argument <code>thrifty=False</code>. When thrifty caching is turned off, a physical copy is always created.</p>
+<h2 id="hierarchical-caching">Hierarchical caching</h2>
+<p>Caches can be composed hierarchically. Namely, a high-level key-slice can trigger a copy from the original array into a big cache, and a lower level key-slice can be used to trigger a copy from the big cache into a smaller cache.</p>
+<p>For example,
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">AAA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">AA</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="multicaching">Multicaching</h2>
+<p>Caches are defined with a key-slice <code>level</code>, and a higher-level key slice <code>trigger_level</code> can be specified as the trigger key-slice for copying multiple successive active blocks of elements to a local copy. These copied active blocks each have their layouts defined as usual, only the trigger level for copying them has been changed. Note that since active blocks are not mutually exclusive, this can result in the same element being copied into multiple locations in the local copy, however they will be in separate caches. Because of this, a <code>trigger_level</code> may only be specified on an <code>INPUT</code> or <code>CONST</code> array as Accera does not perform multicache write coherence.</p>
+<p>For example,
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">trigger_level</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</code></pre></div></p>
+<h2 id="not-yet-implemented-mapping-caches-to-specific-types-of-memory"><strong>Not yet implemented:</strong> Mapping caches to specific types of memory</h2>
+<p>Some target platforms have different types of memory that can hold Accera caches. For example, on a GPU target, caches can be located in <em>global memory</em> or <em>shared memory</em>. To explicitly choose the location of the cache, we write
+<div class="highlight"><pre><span></span><code><span class="n">AA</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">v100</span><span class="o">.</span><span class="n">MemoryType</span><span class="o">.</span><span class="n">SHARED</span><span class="p">)</span>
+</code></pre></div></p>
+<div style="page-break-after: always;"></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      2022-01-31
+    
+  </small>
+</div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../05%20Targets/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Targets" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Targets
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../07%20Plans%20-%20Vectorization%20and%20Parallelization/" class="md-footer__link md-footer__link--next" aria-label="Next: Plans - Vectorization and Parallelization" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Plans - Vectorization and Parallelization
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022+ Microsoft Research [MIT License]
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/microsoft/Accera" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.integrate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.22074ed6.min.js"}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.960e086b.min.js"></script>
+      
+    
+  </body>
+</html>
